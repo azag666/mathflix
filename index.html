@@ -95,22 +95,25 @@
         details > summary { list-style: none; }
         details > summary::-webkit-details-marker { display: none; }
 
+        /* Botão Fechar - Otimizado para não ser cortado */
         .close-modal-btn {
             position: absolute;
-            top: -20px;
+            top: 15px;
             right: 15px;
-            width: 44px;
-            height: 44px;
+            width: 38px;
+            height: 38px;
             background: #ff0000;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 20px rgba(255,0,0,0.5);
-            z-index: 100;
-            border: 3px solid white;
+            box-shadow: 0 4px 15px rgba(255,0,0,0.4);
+            z-index: 200;
+            border: 2px solid white;
             cursor: pointer;
+            transition: transform 0.2s active;
         }
+        .close-modal-btn:active { transform: scale(0.9); }
     </style>
 
     <!-- Meta Pixel Code -->
@@ -143,6 +146,7 @@
         <p class="text-sm text-gray-400 font-medium mb-4">Assista aos conteúdos exclusivos agora.</p>
         
         <div class="w-full relative bg-black rounded-xl overflow-hidden border border-gray-800 shadow-2xl">
+            <!-- Autoplay mudo + playsinline para UX mobile fluida -->
             <video class="w-full aspect-video object-cover" autoplay muted loop playsinline webkit-playsinline controlsList="nodownload">
                 <source src="https://pub-165b12f7792f481faed1f61d81578b79.r2.dev/matchflix/download.mp4" type="video/mp4">
             </video>
@@ -238,7 +242,7 @@
         </div>
     </div>
 
-    <!-- CARROSSEL DE MODELOS CORRIGIDO -->
+    <!-- CARROSSEL DE MODELOS -->
     <div class="py-10 mt-4 border-t border-gray-800 bg-[#0d0d12]">
         <div class="px-6 mb-6 text-center">
             <h2 class="text-2xl font-black text-white uppercase tracking-tighter">Nosso <span class="text-red-600">Catálogo</span></h2>
@@ -269,7 +273,7 @@
         </div>
     </div>
 
-    <!-- DEPOIMENTOS REINTEGRADOS -->
+    <!-- DEPOIMENTOS -->
     <div class="p-6 mt-6 border-t border-gray-800">
         <h2 class="text-lg font-black mb-6 uppercase flex items-center gap-2">
             <i class="fa-solid fa-comments text-red-600"></i>
@@ -282,7 +286,7 @@
                     <span class="text-[9px] text-gray-500 font-bold uppercase tracking-wider">Há 1 dia</span>
                 </div>
                 <p class="text-sm font-bold text-white mb-2 italic">"Superou todas as expectativas"</p>
-                <p class="text-xs text-gray-400 leading-relaxed font-medium">A qualidade do streaming é 4K, não trava nada. O conteúdo realmente é exclusivo, nunca vi essas modelos em outros lugares.</p>
+                <p class="text-xs text-gray-400 leading-relaxed font-medium">A qualidade do streaming é 4K. O conteúdo realmente é exclusivo.</p>
                 <div class="mt-4 pt-4 border-t border-white/5 flex items-center gap-2">
                     <div class="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center text-[10px] font-black italic">LS</div>
                     <span class="text-[10px] text-gray-400 font-bold">Lucas Santos <span class="text-green-500">✓ Compra Verificada</span></span>
@@ -293,8 +297,8 @@
                     <div class="flex text-yellow-500 text-xs gap-0.5"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
                     <span class="text-[9px] text-gray-500 font-bold uppercase tracking-wider">Há 3 dias</span>
                 </div>
-                <p class="text-sm font-bold text-white mb-2 italic">"Vitalício vale muito a pena"</p>
-                <p class="text-xs text-gray-400 leading-relaxed font-medium">Assinei o vitalício pra não ter preocupação. Atualizam o catálogo toda semana. Suporte via WhatsApp funciona mesmo.</p>
+                <p class="text-sm font-bold text-white mb-2 italic">"Vale muito a pena"</p>
+                <p class="text-xs text-gray-400 leading-relaxed font-medium">Atualizam o catálogo toda semana. Recomendo o Vitalício.</p>
                 <div class="mt-4 pt-4 border-t border-white/5 flex items-center gap-2">
                     <div class="w-6 h-6 bg-red-600 rounded-full flex items-center justify-center text-[10px] font-black italic">MR</div>
                     <span class="text-[10px] text-gray-400 font-bold">Matheus R. <span class="text-green-500">✓ Compra Verificada</span></span>
@@ -303,52 +307,45 @@
         </div>
     </div>
 
-    <!-- FAQ REINTEGRADO -->
+    <!-- FAQ -->
     <div class="p-6 mt-2 mb-10 border-t border-gray-800 bg-[#0d0d12]/50">
         <h2 class="text-lg font-black mb-6 uppercase tracking-tighter">Dúvidas Frequentes</h2>
         <div class="space-y-4">
             <details class="bg-[#1c1c1e] border border-[#2c2c2e] rounded-xl group overflow-hidden">
                 <summary class="text-sm font-bold p-4 cursor-pointer flex justify-between items-center text-gray-300 group-open:text-red-500 transition-colors">
-                    O acesso é realmente imediato?
+                    O acesso é imediato?
                     <span class="transition-transform group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs"></i></span>
                 </summary>
                 <div class="px-4 pb-4 text-[13px] text-gray-500 font-medium border-t border-white/5 pt-4 bg-[#1c1c1e]">
-                    Sim! Assim que o Pix é confirmado (geralmente em menos de 30 segundos), você recebe seus dados de acesso no e-mail e na tela de confirmação.
-                </div>
-            </details>
-            <details class="bg-[#1c1c1e] border border-[#2c2c2e] rounded-xl group overflow-hidden">
-                <summary class="text-sm font-bold p-4 cursor-pointer flex justify-between items-center text-gray-300 group-open:text-red-500 transition-colors">
-                    Como aparece na fatura?
-                    <span class="transition-transform group-open:rotate-180"><i class="fa-solid fa-chevron-down text-xs"></i></span>
-                </summary>
-                <div class="px-4 pb-4 text-[13px] text-gray-500 font-medium border-t border-white/5 pt-4 bg-[#1c1c1e]">
-                    Para sua total privacidade, o pagamento é processado com um nome genérico de tecnologia, sem qualquer menção ao MatchFlix.
+                    Sim! O Pix é confirmado em segundos e você recebe o acesso na hora.
                 </div>
             </details>
         </div>
     </div>
 
     <footer class="text-center p-8 text-[10px] text-gray-600 border-t border-gray-900 bg-black uppercase tracking-widest font-black">
-        <p>MatchFlix Premium &copy; 2024 - Proibido para menores de 18 anos</p>
+        <p>MatchFlix Premium &copy; 2024</p>
     </footer>
 
 </div>
 
 <!-- MODAL PIX -->
 <div id="pix-modal-overlay" class="fixed inset-0 bg-black/85 z-[100] hidden opacity-0 transition-opacity backdrop-blur-md" onclick="closePixModal()"></div>
-<div id="pix-modal" class="fixed bottom-0 left-0 right-0 mx-auto max-w-[480px] bg-[#1c1c1e] rounded-t-3xl z-[110] hidden flex-col shadow-2xl border-t border-red-600/30">
+<div id="pix-modal" class="fixed bottom-0 left-0 right-0 mx-auto max-w-[480px] bg-[#1c1c1e] rounded-t-3xl z-[110] hidden flex-col shadow-2xl border-t border-red-600/30 overflow-visible">
+    <!-- BOTÃO FECHAR - REPOSICIONADO PARA EVITAR CLIPPING -->
     <div onclick="closePixModal()" class="close-modal-btn">
         <i class="fa-solid fa-xmark text-white text-xl"></i>
     </div>
+    
     <div class="flex justify-center p-4">
         <div class="w-12 h-1.5 bg-gray-600 rounded-full"></div>
     </div>
     <div id="pix-modal-content" class="px-8 pb-12 text-center relative text-white">
-        <div class="inline-flex items-center justify-center w-14 h-14 bg-red-600/20 text-red-500 rounded-full mb-4">
+        <div class="inline-flex items-center justify-center w-14 h-14 bg-red-600/20 text-red-500 rounded-full mb-4 mt-4">
             <i class="fa-brands fa-pix text-3xl"></i>
         </div>
         <h3 class="text-xl font-black mb-1 uppercase italic tracking-tighter">Finalize sua assinatura</h3>
-        <p class="text-gray-400 text-sm mb-8 font-medium">Acesso liberado instantaneamente após o pagamento.</p>
+        <p class="text-gray-400 text-sm mb-8 font-medium">Acesso liberado instantaneamente.</p>
         
         <div class="bg-white p-4 rounded-3xl inline-block mb-8 shadow-2xl scale-up">
             <img id="pix-qr-img" src="" alt="QR Code" class="w-52 h-52 mx-auto">
@@ -370,7 +367,6 @@
             <span class="text-gray-400 text-xs font-bold uppercase">Total a pagar:</span>
             <span id="pix-modal-total" class="text-2xl font-black text-white italic tracking-tighter">R$ 0,00</span>
         </div>
-        <p class="text-[9px] text-gray-500 mt-6 italic font-medium uppercase tracking-widest"><i class="fa-solid fa-spinner fa-spin mr-2"></i> Aguardando confirmação bancária...</p>
     </div>
 </div>
 
@@ -381,7 +377,7 @@
              <i class="fa-solid fa-hand-stop text-red-600 text-4xl animate-pulse"></i>
         </div>
         <h2 class="text-3xl font-black text-white uppercase mb-3 italic tracking-tighter leading-none">PARE TUDO!</h2>
-        <p class="text-gray-400 text-sm mb-8 leading-relaxed font-medium">Não perca o que preparamos para você. Liberamos um <span class="text-red-500 font-black italic">DESCONTO SECRETO</span> para você entrar agora.</p>
+        <p class="text-gray-400 text-sm mb-8 leading-relaxed font-medium">Liberamos um <span class="text-red-500 font-black italic">DESCONTO SECRETO</span> para você entrar agora.</p>
         
         <div class="bg-black/60 border-2 border-dashed border-red-600/50 rounded-3xl p-6 mb-8 relative">
             <p class="text-[10px] text-gray-400 uppercase font-black tracking-widest mb-1">Acesso VIP (3 Dias)</p>
@@ -391,10 +387,10 @@
             </div>
         </div>
 
-        <button onclick="applyDiscountAndBuy()" class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-5 rounded-2xl text-xl uppercase tracking-wider mb-4 btn-pulse shadow-[0_10px_30px_rgba(34,197,94,0.3)]">
+        <button onclick="applyDiscountAndBuy()" class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-5 rounded-2xl text-xl uppercase tracking-wider mb-4 btn-pulse">
             QUERO O DESCONTO
         </button>
-        <button onclick="closeBackRedirect()" class="text-gray-600 text-[10px] uppercase underline tracking-widest font-black opacity-40">Não, quero sair e perder tudo</button>
+        <button onclick="closeBackRedirect()" class="text-gray-600 text-[10px] uppercase underline tracking-widest font-black opacity-40">Não, quero sair</button>
     </div>
 </div>
 
@@ -420,6 +416,7 @@
 
     // --- BACK REDIRECT ---
     function initBackRedirect() {
+        // Popstate forte
         for (let i = 0; i < 5; i++) {
             window.history.pushState({ page: 'retention' }, '', window.location.href);
         }
@@ -521,7 +518,7 @@
                 throw new Error("Erro");
             }
         } catch (error) {
-            console.warn("API Offline - Mocking");
+            console.warn("API Offline");
             openPixModal();
         } finally {
             ctaText.innerHTML = originalHtml;
@@ -584,9 +581,9 @@
                 <div class="w-20 h-20 bg-green-600/20 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-green-500">
                     <i class="fa-solid fa-check text-green-500 text-4xl"></i>
                 </div>
-                <h3 class="text-3xl font-black mb-3 uppercase italic tracking-tighter italic">BEM-VINDO AO VIP!</h3>
-                <p class="text-gray-400 mb-8 font-medium">Seu pagamento foi confirmado. Seu acesso premium está liberado.</p>
-                <button onclick="window.location.reload()" class="w-full bg-red-600 text-white py-5 rounded-2xl font-black uppercase shadow-xl tracking-wider">ACESSAR CONTEÚDO AGORA</button>
+                <h3 class="text-3xl font-black mb-3 uppercase italic">BEM-VINDO AO VIP!</h3>
+                <p class="text-gray-400 mb-8 font-medium">Seu acesso premium está liberado.</p>
+                <button onclick="window.location.reload()" class="w-full bg-red-600 text-white py-5 rounded-2xl font-black uppercase shadow-xl tracking-wider">ACESSAR AGORA</button>
             </div>
         `;
     }
@@ -629,7 +626,6 @@
     window.onload = () => {
         registerClickAPI();
         
-        // Inicialização Swiper Corrigida
         new Swiper('.modelsSwiper', {
             effect: 'coverflow',
             grabCursor: true,
@@ -637,7 +633,7 @@
             slidesPerView: 'auto',
             loop: true,
             coverflowEffect: {
-                rotate: 20,
+                rotate: 15,
                 stretch: 0,
                 depth: 100,
                 modifier: 1,
