@@ -479,7 +479,7 @@
         processCheckout();
     }
 
-    // --- CHECKOUT ---
+    // --- CHECKOUT E VERIFICAÇÃO PIX ---
     async function registerClickAPI() {
         try {
             const params = new URLSearchParams(window.location.search);
@@ -527,19 +527,23 @@
 
             const data = await response.json();
 
-            if (data && data.qr_code_text) {
+            if (data && data.qr_code_text && data.transaction_id) {
                 document.getElementById('pix-code').value = data.qr_code_text;
                 document.getElementById('pix-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.qr_code_text)}`;
                 document.getElementById('pix-modal-total').innerText = `R$ ${priceBRL.toFixed(2).replace('.', ',')}`;
+                
+                // Salva o ID da transação corretamente
                 currentTransactionId = data.transaction_id;
+                
                 openPixModal();
                 startPixPolling();
             } else {
-                throw new Error("Erro");
+                throw new Error("Erro na estrutura da resposta da API");
             }
         } catch (error) {
-            console.warn("API Offline");
-            openPixModal();
+            console.error("Erro ao gerar PIX:", error);
+            alert("Erro ao gerar a cobrança PIX. Por favor, tente novamente.");
+            // Removido o openPixModal() daqui. O modal só deve abrir se der certo.
         } finally {
             ctaText.innerHTML = originalHtml;
             btn.disabled = false;
@@ -549,18 +553,29 @@
     async function checkPaymentManual() {
         const btn = document.getElementById('btn-already-paid');
         const originalContent = btn.innerHTML;
+        
         try {
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> VERIFICANDO...';
+            
             if (!currentTransactionId) {
-                setTimeout(() => showSuccess(), 1500);
+                alert("ERRO NO SITE: O ID do Pix não foi salvo. Verifique a geração.");
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
                 return;
             }
+            
             const res = await fetch(`${API_BASE_URL}/api/pix/status/${currentTransactionId}`, {
                 headers: { 'x-api-key': HOTTRACK_API_KEY }
             });
+            
             const data = await res.json();
-            if (data.status === 'paid') {
+            
+            // DEDO-DURO: Vai mostrar na sua cara o que a API respondeu
+            alert("A API RESPONDEU ISSO:\n" + JSON.stringify(data, null, 2));
+            
+            // Verifica se está pago (aceitando paid ou approved)
+            if (data && data.status && (data.status.toLowerCase() === 'paid' || data.status.toLowerCase() === 'approved')) {
                 clearInterval(pixPollingInterval);
                 showSuccess();
             } else {
@@ -571,25 +586,34 @@
                 }, 2000);
             }
         } catch (e) {
-            btn.innerHTML = originalContent;
-            btn.disabled = false;
+            alert("ERRO DE COMUNICAÇÃO COM A API: " + e.message);
+            btn.innerHTML = 'ERRO DE CONEXÃO';
+            setTimeout(() => {
+                btn.innerHTML = originalContent;
+                btn.disabled = false;
+            }, 2000);
         }
     }
 
     function startPixPolling() {
         if (pixPollingInterval) clearInterval(pixPollingInterval);
+        
         pixPollingInterval = setInterval(async () => {
             if (!currentTransactionId) return;
+            
             try {
                 const res = await fetch(`${API_BASE_URL}/api/pix/status/${currentTransactionId}`, {
                     headers: { 'x-api-key': HOTTRACK_API_KEY }
                 });
                 const data = await res.json();
-                if (data.status === 'paid') {
+                
+                if (data && data.status && data.status.toLowerCase() === 'paid') {
                     clearInterval(pixPollingInterval);
                     showSuccess();
                 }
-            } catch (e) {}
+            } catch (e) {
+                // Silencioso em background para não poluir o console do cliente
+            }
         }, 8000);
     }
 
