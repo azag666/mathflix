@@ -220,7 +220,8 @@
         </div>
 
         <div class="mt-4">
-            <button onclick="openSummaryModal()" id="main-cta" class="w-full bg-red-600 hover:bg-red-700 text-white font-black text-xl py-5 rounded-xl shadow-[0_10px_30px_rgba(255,0,0,0.4)] flex justify-center items-center transition-all btn-pulse uppercase tracking-wider">
+            <!-- ALTERAÇÃO AQUI: Chama o processCheckout() direto -->
+            <button onclick="processCheckout()" id="main-cta" class="w-full bg-red-600 hover:bg-red-700 text-white font-black text-xl py-5 rounded-xl shadow-[0_10px_30px_rgba(255,0,0,0.4)] flex justify-center items-center transition-all btn-pulse uppercase tracking-wider">
                 <span id="cta-text">Quero ter acesso agora</span>
             </button>
         </div>
@@ -332,40 +333,6 @@
 
 </div>
 
-<!-- MODAL: RESUMO DO PEDIDO -->
-<div id="summary-modal-overlay" class="fixed inset-0 bg-black/95 z-[150] hidden opacity-0 transition-opacity backdrop-blur-md" onclick="closeSummaryModal()"></div>
-<div id="summary-modal" class="fixed bottom-0 left-0 right-0 mx-auto max-w-[500px] bg-[#0a0a0f] rounded-t-[2.5rem] z-[160] hidden flex-col shadow-2xl border-t border-white/10 overflow-visible pb-[calc(1rem+var(--safe-bottom))]">
-    <div class="p-6 text-center">
-        <div class="w-16 h-16 bg-red-600/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-600/30">
-            <i class="fa-solid fa-basket-shopping text-red-600 text-2xl"></i>
-        </div>
-        <h3 class="text-2xl font-black italic uppercase tracking-tighter text-white mb-2">Resumo do Pedido</h3>
-        
-        <div class="bg-white/5 rounded-2xl p-5 mb-6 text-left border border-white/5">
-            <div class="flex justify-between items-center mb-3">
-                <span class="text-gray-400 text-xs font-bold uppercase">Plano Selecionado:</span>
-                <span id="summary-plan-name" class="text-white font-black text-sm uppercase">Mensal</span>
-            </div>
-            <div class="space-y-3 pt-3 border-t border-white/10">
-                <p class="text-[13px] text-gray-300 leading-relaxed">
-                    <i class="fa-solid fa-check text-green-500 mr-2"></i> Acesso ao Canal VIP do Telegram
-                </p>
-                <p class="text-[13px] text-gray-300 leading-relaxed">
-                    <i class="fa-solid fa-check text-green-500 mr-2"></i> Download de +500 Vídeos Secretos
-                </p>
-                <p class="text-[13px] text-gray-300 leading-relaxed">
-                    <i class="fa-solid fa-envelope text-blue-400 mr-2"></i> Recebimento imediato via E-mail
-                </p>
-            </div>
-        </div>
-
-        <button onclick="confirmAndGeneratePix()" class="w-full bg-red-600 hover:bg-red-700 text-white font-black py-5 rounded-2xl text-lg uppercase tracking-wider mb-4 shadow-[0_10px_30px_rgba(255,0,0,0.4)] btn-pulse">
-            GERAR PIX AGORA
-        </button>
-        <button onclick="closeSummaryModal()" class="text-gray-500 text-[10px] uppercase font-bold tracking-widest">Voltar e alterar plano</button>
-    </div>
-</div>
-
 <!-- MODAL PIX -->
 <div id="pix-modal-overlay" class="fixed inset-0 bg-black/90 z-[100] hidden opacity-0 transition-opacity backdrop-blur-md" onclick="closePixModal()"></div>
 <div id="pix-modal" class="fixed bottom-0 left-0 right-0 mx-auto max-w-[500px] bg-[#0a0a0f] rounded-t-[2.5rem] z-[110] hidden flex-col shadow-2xl border-t border-white/10 overflow-visible pb-[calc(1rem+var(--safe-bottom))]">
@@ -434,6 +401,7 @@
             </div>
         </div>
 
+        <!-- ALTERAÇÃO AQUI: Chama a função que já gera o PIX sem passar pelo modal de resumo -->
         <button onclick="applyDiscountAndBuy()" class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-5 rounded-2xl text-lg uppercase tracking-wider mb-4 btn-pulse shadow-[0_10px_30px_rgba(34,197,94,0.3)]">
             QUERO O MEU DESCONTO
         </button>
@@ -452,13 +420,6 @@
         'mensal': 19.90,
         'vitalicio': 47.90,
         'discount': 9.90
-    };
-
-    const PLAN_NAMES = {
-        '3dias': 'Teste 3 Dias VIP',
-        'mensal': 'Acesso Mensal VIP',
-        'vitalicio': 'Acesso Vitalício + Bônus',
-        'discount': 'Oferta Especial 3 Dias'
     };
 
     let currentPkg = 'mensal';
@@ -546,41 +507,11 @@
         setTimeout(() => overlay.classList.add('hidden'), 300);
     }
 
+    // ALTERAÇÃO AQUI: Chama o processCheckout diretamente
     function applyDiscountAndBuy() {
         closeBackRedirect();
         currentPkg = 'discount';
-        openSummaryModal();
-    }
-
-    function openSummaryModal() {
-        document.getElementById('summary-plan-name').innerText = PLAN_NAMES[currentPkg];
-        const modal = document.getElementById('summary-modal');
-        const overlay = document.getElementById('summary-modal-overlay');
-        overlay.classList.remove('hidden');
-        modal.classList.remove('hidden');
-        setTimeout(() => {
-            overlay.classList.replace('opacity-0', 'opacity-100');
-            modal.classList.add('slide-up');
-        }, 10);
-        document.body.style.overflow = 'hidden';
-    }
-
-    function closeSummaryModal() {
-        const modal = document.getElementById('summary-modal');
-        const overlay = document.getElementById('summary-modal-overlay');
-        overlay.classList.replace('opacity-100', 'opacity-0');
-        modal.style.transform = 'translateY(100%)';
-        setTimeout(() => {
-            overlay.classList.add('hidden');
-            modal.classList.add('hidden');
-            modal.style.transform = '';
-            document.body.style.overflow = '';
-        }, 300);
-    }
-
-    function confirmAndGeneratePix() {
-        closeSummaryModal();
-        processCheckout();
+        processCheckout(); 
     }
 
     // --- INTEGRANDO UTMS NO REGISTRO DE CLIQUE ---
