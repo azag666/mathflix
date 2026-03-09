@@ -127,12 +127,19 @@
     <script>
         !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src='https://connect.facebook.net/en_US/fbevents.js';s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script');
     </script>
+
+    <script type="text/javascript">
+        (function(c,l,a,r,i,t,y){
+            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "vt0cwadklf");
+    </script>
 </head>
 <body onclick="armBackRedirect()">
 
 <div class="mobile-container">
     
-    <!-- CONTAGEM REGRESSIVA NO TOPO -->
     <div class="p-3 bg-red-600 text-center sticky top-0 z-[60] shadow-lg">
         <p class="text-[12px] sm:text-sm text-white font-black uppercase tracking-widest">
             ⚠️ OPORTUNIDADE ÚNICA EXPIRA EM: <span id="timer" class="bg-black/20 px-2 py-0.5 rounded">14:59</span>
@@ -146,7 +153,6 @@
         <p class="text-[11px] text-gray-400 font-bold uppercase tracking-widest mb-4">Mais de <span class="text-white">500 vídeos</span> e conteúdos exclusivos</p>
         
         <div class="w-full relative bg-black rounded-xl overflow-hidden border border-gray-800 shadow-2xl">
-            <!-- VÍDEO COM AUTOPLAY E MUTED -->
             <video id="heroVideo" class="w-full aspect-video object-cover" autoplay muted loop playsinline webkit-playsinline controlsList="nodownload">
                 <source src="https://pub-165b12f7792f481faed1f61d81578b79.r2.dev/matchflix/download.mp4" type="video/mp4">
             </video>
@@ -220,7 +226,6 @@
         </div>
 
         <div class="mt-4">
-            <!-- ALTERAÇÃO AQUI: Chama o processCheckout() direto -->
             <button onclick="processCheckout()" id="main-cta" class="w-full bg-red-600 hover:bg-red-700 text-white font-black text-xl py-5 rounded-xl shadow-[0_10px_30px_rgba(255,0,0,0.4)] flex justify-center items-center transition-all btn-pulse uppercase tracking-wider">
                 <span id="cta-text">Quero ter acesso agora</span>
             </button>
@@ -333,7 +338,6 @@
 
 </div>
 
-<!-- MODAL PIX -->
 <div id="pix-modal-overlay" class="fixed inset-0 bg-black/90 z-[100] hidden opacity-0 transition-opacity backdrop-blur-md" onclick="closePixModal()"></div>
 <div id="pix-modal" class="fixed bottom-0 left-0 right-0 mx-auto max-w-[500px] bg-[#0a0a0f] rounded-t-[2.5rem] z-[110] hidden flex-col shadow-2xl border-t border-white/10 overflow-visible pb-[calc(1rem+var(--safe-bottom))]">
     
@@ -384,7 +388,6 @@
     </div>
 </div>
 
-<!-- BACK REDIRECT -->
 <div id="back-redirect-overlay" class="fixed inset-0 bg-black/98 z-[200] hidden opacity-0 transition-opacity backdrop-blur-xl flex items-center justify-center p-6">
     <div class="bg-[#1c1c1e] border-2 border-red-600 rounded-[2.5rem] p-8 text-center max-w-sm w-full shadow-[0_0_80px_rgba(255,0,0,0.4)] scale-up">
         <div class="w-20 h-20 bg-red-600/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-600/30">
@@ -401,7 +404,6 @@
             </div>
         </div>
 
-        <!-- ALTERAÇÃO AQUI: Chama a função que já gera o PIX sem passar pelo modal de resumo -->
         <button onclick="applyDiscountAndBuy()" class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-5 rounded-2xl text-lg uppercase tracking-wider mb-4 btn-pulse shadow-[0_10px_30px_rgba(34,197,94,0.3)]">
             QUERO O MEU DESCONTO
         </button>
@@ -446,7 +448,6 @@
         utms.content = urlParams.get('utm_content') || '';
         utms.term = urlParams.get('utm_term') || '';
         
-        // Opcional: Salvar no sessionStorage para persistência na sessão
         sessionStorage.setItem('matchflix_utms', JSON.stringify(utms));
     }
 
@@ -507,7 +508,6 @@
         setTimeout(() => overlay.classList.add('hidden'), 300);
     }
 
-    // ALTERAÇÃO AQUI: Chama o processCheckout diretamente
     function applyDiscountAndBuy() {
         closeBackRedirect();
         currentPkg = 'discount';
