@@ -135,7 +135,7 @@
         
         <div class="w-full relative bg-black rounded-xl overflow-hidden border border-gray-800 shadow-2xl">
             <video id="heroVideo" class="w-full aspect-video object-cover" autoplay muted loop playsinline webkit-playsinline controlsList="nodownload">
-                <source src="https://pub-165b12f7792f481faed1f61d81578b79.r2.dev/matchflix/Gravac%CC%A7a%CC%83o%20de%20Tela%202026-03-15%20a%CC%80s%2014.40.24.mp4" type="video/mp4">
+                <source src="https://pub-165b12f7792f481faed1f61d81578b79.r2.dev/matchflix/download.mp4" type="video/mp4">
             </video>
         </div>
     </div>
@@ -214,7 +214,7 @@
         
         <div class="swiper modelsSwiper">
             <div class="swiper-wrapper">
-                <div class="swiper-slide"><img src="https://pub-165b12f7792f481faed1f61d81578b79.r2.dev/matchflix/Gravac%CC%A7a%CC%83o%20de%20Tela%202026-03-15%20a%CC%80s%2014.40.59.mp4" class="w-full h-full object-cover"></div>
+                <div class="swiper-slide"><img src="https://pub-165b12f7792f481faed1f61d81578b79.r2.dev/matchflix/1match.png" class="w-full h-full object-cover"></div>
                 <div class="swiper-slide"><img src="https://pub-165b12f7792f481faed1f61d81578b79.r2.dev/matchflix/2match.png" class="w-full h-full object-cover"></div>
                 <div class="swiper-slide"><img src="https://pub-165b12f7792f481faed1f61d81578b79.r2.dev/matchflix/3match.png" class="w-full h-full object-cover"></div>
                 <div class="swiper-slide"><img src="https://pub-165b12f7792f481faed1f61d81578b79.r2.dev/matchflix/4match.png" class="w-full h-full object-cover"></div>
@@ -400,11 +400,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
-    // --- NOVAS CONFIGURAÇÕES PUSHINPAY ---
-    const PUSHINPAY_API_URL = 'https://api.pushinpay.com.br/api';
-    const PUSHINPAY_TOKEN = '63836|NFmZ0X7v52HHcUh3YcyeXUotdVQUDixPv7vaVeeI07a31e66';
-    
-    // --- ANTIGAS CONFIGURAÇÕES (MANTIDAS APENAS PARA O TRACK DE CLIQUES SE AINDA FOR USAR A HOTTRACK) ---
     const API_BASE_URL = 'https://novaapi-one.vercel.app';
     const HOTTRACK_API_KEY = "a0b2f4ce-2011-4faf-9e77-52e59bbcb02b";
     const PRESSEL_ID = 200;
@@ -483,11 +478,14 @@
         setTimeout(() => overlay.classList.add('hidden'), 300);
     }
 
+    // --- NOVAS FUNÇÕES: DOWNSELL 2 (GRUPO GRÁTIS) ---
     function showFreeGroupOffer() {
+        // Fecha o back redirect de desconto
         const backOverlay = document.getElementById('back-redirect-overlay');
         backOverlay.classList.replace('opacity-100', 'opacity-0');
         setTimeout(() => backOverlay.classList.add('hidden'), 300);
 
+        // Abre a nova oferta do Telegram
         const freeOverlay = document.getElementById('free-group-overlay');
         freeOverlay.classList.remove('hidden');
         setTimeout(() => freeOverlay.classList.replace('opacity-0', 'opacity-100'), 50);
@@ -504,6 +502,7 @@
             fbq('trackCustom', 'AcessoGrupoGratis');
         }
     }
+    // ------------------------------------------------
 
     function applyDiscountAndBuy() {
         closeBackRedirect();
@@ -511,7 +510,6 @@
         processCheckout(); 
     }
 
-    // Função mantida para registro analítico caso você acompanhe os cliques na HotTrack
     async function registerClickAPI() {
         try {
             const currentUTMs = getStoredUTMs();
@@ -544,7 +542,6 @@
         document.getElementById('card-' + currentPkg).classList.add('selected');
     }
 
-    // --- NOVA FUNÇÃO GERAR PIX PUSHINPAY ---
     async function processCheckout() {
         const btn = document.getElementById('main-cta');
         const ctaText = document.getElementById('cta-text');
@@ -555,50 +552,43 @@
             btn.disabled = true;
 
             const priceBRL = PRICES[currentPkg];
-            // PushinPay exige valores em centavos
             const valueCents = Math.round(priceBRL * 100);
+            const clickId = globalClickId || "match_" + Date.now();
+            const currentUTMs = getStoredUTMs();
 
-            const response = await fetch(`${PUSHINPAY_API_URL}/pix/cashIn`, {
+            const response = await fetch(`${API_BASE_URL}/api/pix/generate`, {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'Authorization': `Bearer ${PUSHINPAY_TOKEN}` 
-                },
+                headers: { 'Content-Type': 'application/json', 'x-api-key': HOTTRACK_API_KEY },
                 body: JSON.stringify({ 
-                    value: valueCents
+                    click_id: clickId, 
+                    value_cents: valueCents,
+                    metadata: {
+                        utm_source: currentUTMs.source,
+                        utm_medium: currentUTMs.medium,
+                        utm_campaign: currentUTMs.campaign,
+                        utm_content: currentUTMs.content
+                    }
                 })
             });
 
             const data = await response.json();
 
-            // Extrai o Pix Copia e Cola. Pode variar na API entre qr_code ou qr_code_text
-            const pixCode = data.qr_code || data.qr_code_text || data.brcode;
-
-            if (data && pixCode && data.id) {
-                document.getElementById('pix-code').value = pixCode;
-                document.getElementById('pix-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(pixCode)}`;
+            if (data && data.qr_code_text && data.transaction_id) {
+                document.getElementById('pix-code').value = data.qr_code_text;
+                document.getElementById('pix-qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(data.qr_code_text)}`;
                 document.getElementById('pix-modal-total').innerText = `R$ ${priceBRL.toFixed(2).replace('.', ',')}`;
-                
-                // Armazenamos o ID fornecido pela PushinPay para consultar depois
-                currentTransactionId = data.id; 
-                
+                currentTransactionId = data.transaction_id;
                 openPixModal();
                 startPixPolling();
-            } else {
-                console.error("Erro na resposta da PushinPay:", data);
-                alert("Falha ao gerar a cobrança. Tente novamente.");
             }
         } catch (error) {
             console.error("Erro ao gerar PIX:", error);
-            alert("Erro de conexão com o meio de pagamento.");
         } finally {
             ctaText.innerHTML = originalHtml;
             btn.disabled = false;
         }
     }
 
-    // --- NOVA FUNÇÃO CONSULTA MANUAL PUSHINPAY ---
     async function checkPaymentManual() {
         const btn = document.getElementById('btn-already-paid');
         const originalContent = btn.innerHTML;
@@ -606,18 +596,11 @@
             btn.disabled = true;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> VERIFICANDO...';
             if (!currentTransactionId) return;
-            
-            const res = await fetch(`${PUSHINPAY_API_URL}/transactions/${currentTransactionId}`, {
-                method: 'GET',
-                headers: { 
-                    'Accept': 'application/json',
-                    'Authorization': `Bearer ${PUSHINPAY_TOKEN}` 
-                }
+            const res = await fetch(`${API_BASE_URL}/api/pix/status/${currentTransactionId}`, {
+                headers: { 'x-api-key': HOTTRACK_API_KEY }
             });
             const data = await res.json();
-            
-            // Verifica o status de pagamento aprovado
-            if (data && data.status && data.status.toLowerCase() === 'paid') {
+            if (data && data.status && (data.status.toLowerCase() === 'paid' || data.status.toLowerCase() === 'approved')) {
                 clearInterval(pixPollingInterval);
                 showSuccess();
             } else {
@@ -636,28 +619,21 @@
         }
     }
 
-    // --- NOVA FUNÇÃO CONSULTA AUTOMÁTICA PUSHINPAY ---
     function startPixPolling() {
         if (pixPollingInterval) clearInterval(pixPollingInterval);
         pixPollingInterval = setInterval(async () => {
             if (!currentTransactionId) return;
             try {
-                const res = await fetch(`${PUSHINPAY_API_URL}/transactions/${currentTransactionId}`, {
-                    method: 'GET',
-                    headers: { 
-                        'Accept': 'application/json',
-                        'Authorization': `Bearer ${PUSHINPAY_TOKEN}` 
-                    }
+                const res = await fetch(`${API_BASE_URL}/api/pix/status/${currentTransactionId}`, {
+                    headers: { 'x-api-key': HOTTRACK_API_KEY }
                 });
                 const data = await res.json();
-                
-                // Redireciona para o sucesso ao identificar o status "paid"
-                if (data && data.status && data.status.toLowerCase() === 'paid') {
+                if (data && data.status && (data.status.toLowerCase() === 'paid' || data.status.toLowerCase() === 'approved')) {
                     clearInterval(pixPollingInterval);
                     showSuccess();
                 }
             } catch (e) {}
-        }, 8000); // Polling a cada 8 segundos
+        }, 8000);
     }
 
     function showSuccess() {
