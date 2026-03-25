@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -431,6 +430,28 @@
         term: ''
     };
 
+    // --- NOVA FUNÇÃO PUSHCUT (NOTIFICAÇÃO DE VENDA) ---
+    async function notifyPushcut(pkgName) {
+        const webhooks = {
+            '3dias': 'https://api.pushcut.io/JX60URSeGYXjFKP4bbP9P/notifications/14,90',
+            'discount': 'https://api.pushcut.io/JX60URSeGYXjFKP4bbP9P/notifications/9,90',
+            'mensal': 'https://api.pushcut.io/JX60URSeGYXjFKP4bbP9P/notifications/19,90',
+            'vitalicio': '' // Adicione a URL de 97,90 aqui, se houver
+        };
+        
+        const webhookUrl = webhooks[pkgName];
+        
+        if (webhookUrl) {
+            try {
+                // Requisição no-cors para não ser bloqueado e notificar direto em background
+                await fetch(webhookUrl, { method: 'GET', mode: 'no-cors' });
+                console.log('Notificação enviada ao Pushcut.');
+            } catch (error) {
+                console.error('Falha ao notificar Pushcut:', error);
+            }
+        }
+    }
+
     function captureUTMs() {
         const urlParams = new URLSearchParams(window.location.search);
         utms.source = urlParams.get('utm_source') || '';
@@ -620,6 +641,7 @@
             // Verifica o status de pagamento aprovado
             if (data && data.status && data.status.toLowerCase() === 'paid') {
                 clearInterval(pixPollingInterval);
+                notifyPushcut(currentPkg); // Envia a notificação Pushcut
                 showSuccess();
             } else {
                 btn.innerHTML = 'PAGAMENTO NÃO ENCONTRADO';
@@ -655,6 +677,7 @@
                 // Redireciona para o sucesso ao identificar o status "paid"
                 if (data && data.status && data.status.toLowerCase() === 'paid') {
                     clearInterval(pixPollingInterval);
+                    notifyPushcut(currentPkg); // Envia a notificação Pushcut
                     showSuccess();
                 }
             } catch (e) {}
