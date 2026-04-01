@@ -433,20 +433,21 @@
     const HOTTRACK_API_KEY = "a0b2f4ce-2011-4faf-9e77-5259bbcb02b";
     const PRESSEL_ID = 200;
     
-    // TABELA DE PREÇOS ATUALIZADA
     const PRICES = {
         '3dias': 7.90,
         'mensal': 13.90,
         'vitalicio': 29.90,
         'discount': 4.99,
-        'grupo_1real': 1.00 // NOVO PREÇO ADICIONADO AQUI
+        'grupo_1real': 1.00 
     };
 
     let currentPkg = 'mensal';
     let pixPollingInterval = null;
     let currentTransactionId = null;
     let globalClickId = null;
-    let offerShown = false;
+    
+    // SISTEMA DE ESTADO DO FUNIL (0 a 4)
+    let funnelStep = 0; 
 
     let utms = {
         source: '',
@@ -462,7 +463,7 @@
             'discount': 'https://api.pushcut.io/JX60URSeGYXjFKP4bbP9P/notifications/9,90',
             'mensal': 'https://api.pushcut.io/JX60URSeGYXjFKP4bbP9P/notifications/19,90',
             'vitalicio': '', 
-            'grupo_1real': '' // Adicione um webhook aqui se quiser ser notificado de compras de 1 real
+            'grupo_1real': '' 
         };
         
         const webhookUrl = webhooks[pkgName];
@@ -500,41 +501,60 @@
         });
     }
 
+    // --- LOGICA DE REDIRECIONAMENTO E FUNIL BLINDADA ---
     function initBackRedirect() {
         for (let i = 0; i < 5; i++) {
             window.history.pushState({ page: 'retention' }, '', window.location.href);
         }
         window.addEventListener('popstate', function(event) {
-            if (!offerShown) showBackRedirect();
+            const pixModalOverlay = document.getElementById('pix-modal-overlay');
+            // Se ele der back enquanto o PIX tiver aberto, fechamos o PIX e a função já cuidará do funil
+            if (pixModalOverlay && !pixModalOverlay.classList.contains('hidden')) {
+                closePixModal();
+            } else {
+                triggerNextFunnelStep();
+            }
         });
     }
 
     function armBackRedirect() {
-        if (!offerShown) {
+        if (funnelStep === 0) {
             initBackRedirect();
             document.body.removeAttribute('onclick');
         }
     }
 
+    // Gerenciador central do funil
+    function triggerNextFunnelStep() {
+        if (funnelStep === 0) {
+            showBackRedirect();
+        } else if (funnelStep === 1) {
+            showOneRealOffer();
+        } else if (funnelStep === 2) {
+            showRealFreeGroup();
+        }
+    }
+
     function showBackRedirect() {
-        if (offerShown) return;
+        if (funnelStep >= 1) return;
+        funnelStep = 1;
         const overlay = document.getElementById('back-redirect-overlay');
         overlay.classList.remove('hidden');
         setTimeout(() => overlay.classList.replace('opacity-0', 'opacity-100'), 10);
-        offerShown = true;
     }
 
     function closeBackRedirect() {
         const overlay = document.getElementById('back-redirect-overlay');
-        overlay.classList.replace('opacity-100', 'opacity-0');
-        setTimeout(() => overlay.classList.add('hidden'), 300);
+        if (!overlay.classList.contains('hidden')) {
+            overlay.classList.replace('opacity-100', 'opacity-0');
+            setTimeout(() => overlay.classList.add('hidden'), 300);
+        }
     }
 
     function showOneRealOffer() {
-        const backOverlay = document.getElementById('back-redirect-overlay');
-        backOverlay.classList.replace('opacity-100', 'opacity-0');
-        setTimeout(() => backOverlay.classList.add('hidden'), 300);
-
+        if (funnelStep >= 2) return;
+        funnelStep = 2;
+        closeBackRedirect();
         const oneRealOverlay = document.getElementById('one-real-overlay');
         oneRealOverlay.classList.remove('hidden');
         setTimeout(() => oneRealOverlay.classList.replace('opacity-0', 'opacity-100'), 50);
@@ -542,24 +562,28 @@
 
     function closeOneRealOffer() {
         const overlay = document.getElementById('one-real-overlay');
-        overlay.classList.replace('opacity-100', 'opacity-0');
-        setTimeout(() => overlay.classList.add('hidden'), 300);
+        if (!overlay.classList.contains('hidden')) {
+            overlay.classList.replace('opacity-100', 'opacity-0');
+            setTimeout(() => overlay.classList.add('hidden'), 300);
+        }
     }
 
     function showRealFreeGroup() {
-        const oneRealOverlay = document.getElementById('one-real-overlay');
-        oneRealOverlay.classList.replace('opacity-100', 'opacity-0');
-        setTimeout(() => oneRealOverlay.classList.add('hidden'), 300);
-
+        if (funnelStep >= 3) return;
+        funnelStep = 3;
+        closeOneRealOffer();
         const freeOverlay = document.getElementById('real-free-group-overlay');
         freeOverlay.classList.remove('hidden');
         setTimeout(() => freeOverlay.classList.replace('opacity-0', 'opacity-100'), 50);
     }
 
     function closeRealFreeGroup() {
+        funnelStep = 4; // Funil encerrado
         const overlay = document.getElementById('real-free-group-overlay');
-        overlay.classList.replace('opacity-100', 'opacity-0');
-        setTimeout(() => overlay.classList.add('hidden'), 300);
+        if (!overlay.classList.contains('hidden')) {
+            overlay.classList.replace('opacity-100', 'opacity-0');
+            setTimeout(() => overlay.classList.add('hidden'), 300);
+        }
     }
 
     function trackFreeGroup() {
@@ -568,7 +592,6 @@
         }
     }
 
-    // NOVA FUNÇÃO: Aplica a oferta de R$ 1,00 e abre o Checkout Pix
     function applyOneRealAndBuy() {
         if(typeof fbq === 'function') {
             fbq('trackCustom', 'CheckoutUmReal');
@@ -583,6 +606,7 @@
         currentPkg = 'discount';
         processCheckout(); 
     }
+    // --------------------------------------------------
 
     async function registerClickAPI() {
         try {
@@ -619,7 +643,6 @@
     async function processCheckout() {
         const btn = document.getElementById('main-cta');
         const ctaText = document.getElementById('cta-text');
-        // Prevenção caso o botão principal não exista (ex: vindo do modal de R$1)
         const originalHtml = ctaText ? ctaText.innerHTML : '';
 
         try {
@@ -770,7 +793,9 @@
             modal.classList.add('hidden');
             modal.style.transform = '';
             document.body.style.overflow = '';
-            if (!offerShown) showBackRedirect();
+            
+            // O funil SEMPRE continua quando o modal do PIX é fechado 
+            triggerNextFunnelStep();
         }, 300);
     }
 
